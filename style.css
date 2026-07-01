@@ -10,3 +10,16 @@
   pointer-events:none;
   z-index:50;
 }
+.upgrade.affordable,
+.shop-item.affordable,
+.building.affordable{
+  background:linear-gradient(180deg,#8b5a20,#5a3512);
+  border-color:#ffcc66;
+  box-shadow:0 0 12px rgba(255,180,60,.45);
+}
+
+.upgrade.affordable:hover,
+.shop-item.affordable:hover,
+.building.affordable:hover{
+  filter:brightness(1.15);
+}
