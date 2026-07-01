@@ -42,12 +42,33 @@ const game = {
 };
 
 let audioCtx;
-function beep(freq=420,duration=.035,volume=.25){
-  if(game.clickVolume<=0) return;
-  audioCtx ||= new (window.AudioContext||window.webkitAudioContext)();
-  const o=audioCtx.createOscillator(), gain=audioCtx.createGain();
-  o.frequency.value=freq; o.type='triangle'; gain.gain.value=volume*game.clickVolume;
-  o.connect(gain); gain.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime+duration);
+function playClickSound(){
+  if(!audioEnabled) return;
+
+  const ctx = getAudioContext();
+  const volume = Number(document.getElementById("volume")?.value || 35) / 100;
+
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  const filter = ctx.createBiquadFilter();
+
+  osc.type = "square";
+  osc.frequency.setValueAtTime(950, ctx.currentTime);
+  osc.frequency.exponentialRampToValueAtTime(520, ctx.currentTime + 0.035);
+
+  filter.type = "highpass";
+  filter.frequency.value = 350;
+
+  gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.08 * volume, ctx.currentTime + 0.004);
+  gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.045);
+
+  osc.connect(filter);
+  filter.connect(gain);
+  gain.connect(ctx.destination);
+
+  osc.start();
+  osc.stop(ctx.currentTime + 0.05);
 }
 function fmt(n){ if(!isFinite(n))return'∞'; if(n<1000)return Math.floor(n).toString(); const u=['','k','M','B','T','Qa','Qi','Sx','Sp']; let i=0; while(n>=1000&&i<u.length-1){n/=1000;i++} return n.toFixed(2)+' '+u[i]; }
 function time(s){s=Math.floor(s); const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sec=s%60; return h?`${h}h ${m}m`:m?`${m}m ${sec}s`:`${sec}s`;}
